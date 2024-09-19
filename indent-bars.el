@@ -1,10 +1,10 @@
 ;;; indent-bars.el --- Highlight indentation with bars -*- lexical-binding: t; -*-
 ;; Copyright (C) 2023-2024  Free Software Foundation, Inc.
 
-;; Author: J.D. Smith
+;; Author: J.D. Smith <jdtsmith+elpa@gmail.com>
 ;; Homepage: https://github.com/jdtsmith/indent-bars
 ;; Package-Requires: ((emacs "27.1") (compat "29.1"))
-;; Version: 0.7.2
+;; Version: 0.7.4
 ;; Keywords: convenience
 
 ;; indent-bars is free software: you can redistribute it and/or
@@ -1592,7 +1592,7 @@ Adapted from `highlight-indentation-mode'."
 		       ,@(if indent-bars-display-on-blank-lines
 			     '((group (* (or ?\s ?\t ?\n)) ?\n))))))))
 
-(declare-function indent-bars-ts-mode "indent-bars-ts")
+(declare-function indent-bars--ts-mode "indent-bars-ts")
 (defun indent-bars-setup ()
   "Setup all face, color, bar size, and indentation info for the current buffer."
   ;; Spacing
@@ -1618,7 +1618,7 @@ Adapted from `highlight-indentation-mode'."
 	(or indent-bars-no-descend-string indent-bars-no-descend-lists))
 
   ;; Treesitter
-  (if indent-bars-treesit-support (indent-bars-ts-mode 1)) ; autoloads
+  (if indent-bars-treesit-support (indent-bars--ts-mode 1)) ; autoloads
 
   ;; Remap/Resize
   (unless indent-bars--no-stipple
