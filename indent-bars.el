@@ -4,7 +4,7 @@
 ;; Author: J.D. Smith <jdtsmith+elpa@gmail.com>
 ;; Homepage: https://github.com/jdtsmith/indent-bars
 ;; Package-Requires: ((emacs "27.1") (compat "29.1"))
-;; Version: 0.7.4
+;; Version: 0.7.5
 ;; Keywords: convenience
 
 ;; indent-bars is free software: you can redistribute it and/or
@@ -61,6 +61,7 @@
 (require 'timer)
 (require 'outline)
 (require 'font-lock)
+(require 'jit-lock)
 (require 'face-remap)
 (require 'cus-edit)
 (require 'compat)
@@ -420,8 +421,8 @@ If non-nil, displayed bars will go no deeper than the indent
 level at the starting line of the innermost containing list.  If
 t, any list recognized by the active syntax table will be used to
 identify enclosing list contexts.  If set to a list of
-characters, only opening characters on this list will activate
-bar suppression."
+characters, only list-opening characters on this list will
+activate bar suppression."
   :local t
   :type '(choice
 	  (const :tag "Disabled" nil)
@@ -518,20 +519,20 @@ and used to sort the list numerically.  A list of the foreground
 color of the matching, sorted faces will be returned, unless
 FACE-BG is non-nil, in which case the background color is
 returned."
-  (mapcar (lambda (x) (funcall (if face-bg #'face-background #'face-foreground)
-			       (cdr x) nil 'default))
+  (mapcar (lambda (x)
+	    (funcall (if face-bg #'face-background #'face-foreground)
+		     (cdr x) nil 'default))
           (seq-sort-by #'car
-		       (lambda (a b) (cond
-				      ((not (numberp b)) t)
-				      ((not (numberp a)) nil)
-				      (t (< a b))))
-		       (mapcan
-			(lambda (x)
-			  (let ((n (symbol-name x)))
-			    (if (string-match regexp n)
-                                (list (cons (string-to-number (match-string 1 n))
-					    x)))))
-			(face-list)))))
+	   (lambda (a b) (cond
+			  ((not (numberp b)) t)
+			  ((not (numberp a)) nil)
+			  (t (< a b))))
+	   (mapcan
+	    (lambda (x)
+	      (let ((n (symbol-name x)))
+		(when (and (string-match regexp n) (match-string 1))
+                  (list (cons (string-to-number (match-string 1 n)) x)))))
+	    (face-list)))))
 
 (defun indent-bars--unpack-palette (palette)
   "Process a face or color-based PALETTE."
@@ -714,14 +715,12 @@ DEPTH starts at 1."
   `((t . ( :inherit ,(ibs/stipple-face style)
 	   :foreground ,(indent-bars--get-color style depth)))))
 
-(defun indent-bars--create-faces (style num &optional redefine)
-  "Create bar faces up to depth NUM for STYLE.
-Redefine them if REDEFINE is non-nil."
+(defun indent-bars--create-faces (style num)
+  "Create bar faces up to depth NUM for STYLE."
   (vconcat
    (cl-loop
     for i from 1 to num
     for face = (indent-bars--tag "indent-bars%s-%d" style i) do
-    (if (and redefine (facep face)) (face-spec-reset-face face))
     (face-spec-set face (indent-bars--calculate-face-spec style i))
     collect face)))
 
@@ -885,8 +884,7 @@ returned."
 Useful for calling after theme changes."
   (interactive)
   (unless (equal (terminal-name) "initial_terminal")
-    (mapc #'indent-bars--initialize-style
-	  indent-bars--styles)))
+    (mapc #'indent-bars--initialize-style indent-bars--styles)))
 
 (defun indent-bars--initialize-style (style)
   "Initialize STYLE."
@@ -897,7 +895,7 @@ Useful for calling after theme changes."
 	(indent-bars--depth-palette style)
 	(ibs/current-depth-palette style)
 	(indent-bars--current-depth-palette style)
-	(ibs/faces style) (indent-bars--create-faces style 7 'reset)
+	(ibs/faces style) (indent-bars--create-faces style 7)
 	(ibs/no-stipple-chars style) (indent-bars--create-no-stipple-chars style 7))
 
   ;; Base stipple face
@@ -1676,8 +1674,9 @@ Adapted from `highlight-indentation-mode'."
   (with-silent-modifications
     (remove-text-properties (point-min) (point-max) '(indent-bars-display nil)))
 
-  (font-lock-flush)
-  (font-lock-ensure)
+  (jit-lock-refontify)
+  ;; (font-lock-flush)
+  ;; (font-lock-ensure)
 
   (setq indent-bars--current-depth 0)
   (remove-hook 'text-scale-mode-hook #'indent-bars--update-all-stipples t)
