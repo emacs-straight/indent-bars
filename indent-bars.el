@@ -4,7 +4,7 @@
 ;; Author: J.D. Smith <jdtsmith+elpa@gmail.com>
 ;; Homepage: https://github.com/jdtsmith/indent-bars
 ;; Package-Requires: ((emacs "27.1") (compat "29.1"))
-;; Version: 0.7.5
+;; Version: 0.7.6
 ;; Keywords: convenience
 
 ;; indent-bars is free software: you can redistribute it and/or
@@ -530,7 +530,7 @@ returned."
 	   (mapcan
 	    (lambda (x)
 	      (let ((n (symbol-name x)))
-		(when (and (string-match regexp n) (match-string 1))
+		(when (and (string-match regexp n) (match-string 1 n))
                   (list (cons (string-to-number (match-string 1 n)) x)))))
 	    (face-list)))))
 
@@ -1149,7 +1149,7 @@ not indicated, even if they otherwise would be."
     nil))
 
 ;;;; jit-lock support
-(defvar indent-bars--orig-fontify-region nil)
+(defvar-local indent-bars--orig-fontify-region nil)
 (defun indent-bars--extend-region (start end)
   "Extend the region START..END.
 If `indent-bars-display-on-blank-lines' is non-nil, this extends
