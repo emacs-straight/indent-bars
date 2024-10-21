@@ -4,7 +4,7 @@
 ;; Author: J.D. Smith <jdtsmith+elpa@gmail.com>
 ;; Homepage: https://github.com/jdtsmith/indent-bars
 ;; Package-Requires: ((emacs "27.1") (compat "29.1"))
-;; Version: 0.8
+;; Version: 0.8.1
 ;; Keywords: convenience
 
 ;; indent-bars is free software: you can redistribute it and/or
@@ -642,6 +642,10 @@ instead of the :blend factor in `indent-bars-color'."
 			       main nil 'default))
 		     ((color-defined-p main) main)))
 	  (blend (or blend-override blend)))
+      (when (string-prefix-p "unspecified-" col)
+	(setq col (if face-bg
+		      indent-bars-unspecified-bg-color
+		    indent-bars-unspecified-fg-color)))
       (if (and tint tint-blend (color-defined-p tint)) ;tint main color
 	  (setq col (indent-bars--blend-colors tint col tint-blend)))
       (if blend				;now blend into BG
@@ -1549,8 +1553,8 @@ WIN defaults to the selected window.  To be set as a local
     (with-current-buffer buf ;N.B. face-remapping-alist is buffer-local
       (dolist (rk unneeded)
 	(indent-bars--remove-plist-remaps (gethash rk rmp-hsh))
-	(remhash rk rmp-hsh)))
-    (setf (buffer-local-value 'indent-bars--needs-cleanup buf) nil)))
+	(remhash rk rmp-hsh))
+      (setq indent-bars--needs-cleanup nil))))
 
 ;;;; Setup and mode
 (defun indent-bars--guess-spacing ()
