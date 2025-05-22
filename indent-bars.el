@@ -1643,6 +1643,8 @@ Adapted from `highlight-indentation-mode'."
     js-indent-level)
    ((and (derived-mode-p 'sh-base-mode) (boundp 'sh-basic-offset))
     sh-basic-offset)
+   ((and (derived-mode-p 'java-ts-mode) (boundp 'java-ts-mode-indent-offset))
+    java-ts-mode-indent-offset)
    ((and (boundp 'standard-indent) standard-indent))
    (t 4))) 				; backup
 
@@ -1663,7 +1665,9 @@ Adapted from `highlight-indentation-mode'."
 			(not (any ?\t ?\s ?\n)))
 		       ;; group 2: multi-line blank regions
 		       ,@(if indent-bars-display-on-blank-lines
-			     '((group (* (or ?\s ?\t ?\n)) ?\n))))))))
+			     '((group (* (or ?\s ?\t ?\n)) ?\n)))))))
+  (unless font-lock-defaults (setq font-lock-defaults t))
+  (unless font-lock-mode (font-lock-mode 1)))
 
 (declare-function indent-bars--ts-mode "indent-bars-ts")
 (defun indent-bars-setup ()
