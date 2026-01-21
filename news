@@ -3,8 +3,8 @@
                        ━━━━━━━━━━━━━━━━━━━━━━━━━
 
 
-1 DEVELOPMENT
-═════════════
+1 v1.0 (2025-01-19)
+═══════════════════
 
   • Implement /bar-skipping/ in multiply-nested list contexts (with
     `indent-bars-no-descend-lists' set to `skip').
