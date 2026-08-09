@@ -3,8 +3,8 @@
                        ━━━━━━━━━━━━━━━━━━━━━━━━━
 
 
-1 DEVELOPMENT
-═════════════
+1 v1.0.1 (2026-08-08)
+═════════════════════
 
   • Add custom option `indent-bars-defer-setup' to help with late setup
     of indentation parameters, including file/dir-local and other helper
